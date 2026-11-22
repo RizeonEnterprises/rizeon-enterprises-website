@@ -1,9 +1,9 @@
-import { HardDrive, Laptop, Plug, Keyboard, type LucideIcon } from "lucide-react"
-import { MessageCircle } from "lucide-react"
+import { HardDrive, Laptop, MessageCircle, Plug, Keyboard, Truck, type LucideIcon } from "lucide-react"
 
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/motion/reveal"
 import { Badge } from "@/components/ui/badge"
-import { whatsappUrl } from "@/lib/site"
 import { buttonVariants } from "@/components/ui/button"
+import { whatsappUrl } from "@/lib/site"
 import { cn } from "cn"
 import { Section, SectionHeading } from "./section"
 
@@ -65,8 +65,14 @@ export function HardwareShowcaseSection() {
         description="Genuine, warranty-backed parts and devices—ready to ship or install. Stock moves fast, so message us to confirm current availability and pricing."
       />
 
+      <p className="mx-auto mt-4 flex max-w-2xl items-center justify-center gap-2 text-center text-sm text-muted-foreground">
+        <Truck className="size-4 shrink-0 text-primary" aria-hidden />
+        Pan-India shipping for laptops, accessories &amp; bulk office orders—with in-store
+        installation and repair available in New Delhi.
+      </p>
+
       {/* Desktop / tablet: table */}
-      <div className="mt-12 hidden overflow-hidden rounded-xl ring-1 ring-foreground/10 md:block">
+      <FadeIn className="mt-12 hidden overflow-hidden rounded-xl ring-1 ring-foreground/10 md:block">
         <table className="w-full table-fixed border-collapse text-left text-sm">
           <thead className="bg-muted/60 text-xs tracking-wide text-muted-foreground uppercase">
             <tr>
@@ -94,12 +100,12 @@ export function HardwareShowcaseSection() {
             ))}
           </tbody>
         </table>
-      </div>
+      </FadeIn>
 
-      {/* Mobile: stacked cards */}
-      <div className="mt-10 flex flex-col gap-4 md:hidden">
+      {/* Mobile: stacked cards (staggered reveal) */}
+      <StaggerContainer className="mt-10 flex flex-col gap-4 md:hidden">
         {rows.map(({ icon: Icon, category, items, stock, warranty }) => (
-          <div key={category} className="rounded-xl bg-card p-5 ring-1 ring-foreground/10">
+          <StaggerItem key={category} className="rounded-xl bg-card p-5 ring-1 ring-foreground/10">
             <div className="flex items-center justify-between gap-3">
               <span className="flex items-center gap-2.5 font-medium">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
@@ -111,9 +117,9 @@ export function HardwareShowcaseSection() {
             </div>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{items}</p>
             <p className="mt-2 text-xs font-medium text-foreground/70">{warranty}</p>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
       {/* CTA banner */}
       <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-xl border border-border bg-background p-6 text-center sm:flex-row sm:text-left">

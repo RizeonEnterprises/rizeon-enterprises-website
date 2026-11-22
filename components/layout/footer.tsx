@@ -16,8 +16,9 @@ export function Footer() {
               <span className="font-heading text-base font-semibold tracking-tight">{site.name}</span>
             </Link>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-              {site.name} — {site.tagline}. Delivering custom software, modern websites, laptop
-              repairs, and quality IT accessories from New Delhi.
+              {site.name} — {site.tagline}. Custom software, modern websites, and digital growth for
+              clients across India and worldwide, plus laptop repairs and genuine IT accessories
+              shipped from New Delhi.
             </p>
           </div>
 

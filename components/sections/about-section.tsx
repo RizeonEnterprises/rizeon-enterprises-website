@@ -1,5 +1,6 @@
 import { Compass, Target } from "lucide-react"
 
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/motion/reveal"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Section } from "./section"
@@ -8,7 +9,7 @@ const callouts = [
   {
     icon: Target,
     title: "Our Mission",
-    body: "To be the single, dependable technology partner for businesses across Delhi—delivering software, websites, and hardware that are reliable, affordable, and genuinely useful.",
+    body: "To be the single, dependable technology partner for businesses in India and worldwide—delivering software, websites, and hardware that are reliable, affordable, and genuinely useful.",
   },
   {
     icon: Compass,
@@ -21,7 +22,7 @@ export function AboutSection() {
   return (
     <Section id="about" className="scroll-mt-20">
       <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
-        <div className="flex flex-col items-start gap-4">
+        <FadeIn className="flex flex-col items-start gap-4">
           <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium tracking-wide">
             Who We Are
           </Badge>
@@ -30,10 +31,10 @@ export function AboutSection() {
           </h2>
           <div className="mt-2 flex flex-col gap-4 text-base leading-relaxed text-muted-foreground">
             <p>
-              Based in New Delhi, Rizeon Enterprises is a technology company that bridges the gap
-              between hardware and software. We build the custom desktop and web software that runs
-              your business, and we service and supply the laptops, desktops, and accessories your
-              team relies on every day—so you never have to juggle multiple vendors.
+              Rizeon Enterprises is an India-based technology and IT solutions firm, headquartered
+              in New Delhi, working with startups, growing businesses, and international clients
+              worldwide on custom software, websites, and digital growth—while running a dedicated
+              hardware repair and pan-India IT supply desk from New Delhi.
             </p>
             <p>
               We believe good technology should be practical, not complicated. No bloated templates,
@@ -42,23 +43,25 @@ export function AboutSection() {
               businesses.
             </p>
           </div>
-        </div>
+        </FadeIn>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+        <StaggerContainer className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
           {callouts.map(({ icon: Icon, title, body }) => (
-            <Card key={title} className="bg-muted/40">
-              <CardHeader className="flex flex-row items-center gap-3">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
-                  <Icon className="size-5" aria-hidden />
-                </span>
-                <CardTitle className="text-lg">{title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
-              </CardContent>
-            </Card>
+            <StaggerItem key={title} className="h-full">
+              <Card className="h-full bg-muted/40">
+                <CardHeader className="flex flex-row items-center gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+                    <Icon className="size-5" aria-hidden />
+                  </span>
+                  <CardTitle className="text-lg">{title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
+                </CardContent>
+              </Card>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </Section>
   )

@@ -10,7 +10,8 @@ export const site = {
   whatsappNumber: "918810500571",
   email: "rizeonenterprises@gmail.com",
   location: "Najafgarh, New Delhi – 110075",
-  hours: "Monday – Saturday, 10:00 AM – 7:00 PM",
+  locationLine: "Headquartered in Najafgarh, New Delhi – 110075, India (Serving India & Worldwide)",
+  hours: "Monday – Saturday, 10:00 AM – 7:00 PM IST (UTC+5:30)",
 } as const
 
 /** Build a wa.me link, encoding an optional prefilled message. */

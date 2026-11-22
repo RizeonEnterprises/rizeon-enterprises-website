@@ -1,13 +1,17 @@
 import {
   Building2,
+  Globe,
   Keyboard,
   LayoutTemplate,
   MonitorCog,
   ShoppingCart,
+  Truck,
   Wrench,
   type LucideIcon,
 } from "lucide-react"
 
+import { StaggerContainer, StaggerItem } from "@/components/motion/reveal"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Section, SectionHeading } from "./section"
 
@@ -22,6 +26,8 @@ type Track = {
   id: string
   label: string
   title: string
+  badge: string
+  badgeIcon: LucideIcon
   services: Service[]
 }
 
@@ -30,6 +36,8 @@ const tracks: Track[] = [
     id: "track-a",
     label: "Track A",
     title: "Software, Web & Digital Growth",
+    badge: "Remote Delivery • India & Worldwide",
+    badgeIcon: Globe,
     services: [
       {
         icon: MonitorCog,
@@ -58,6 +66,8 @@ const tracks: Track[] = [
     id: "track-b",
     label: "Track B",
     title: "Hardware, Repairs & Accessories",
+    badge: "Pan-India Shipping • New Delhi Repair Desk",
+    badgeIcon: Truck,
     services: [
       {
         icon: Wrench,
@@ -86,7 +96,7 @@ const tracks: Track[] = [
 
 function ServiceCard({ icon: Icon, title, tagline, description }: Service) {
   return (
-    <Card className="group h-full gap-0 transition duration-300 hover:-translate-y-1 hover:ring-foreground/20">
+    <Card className="group h-full gap-0 transition-transform duration-200 hover:-translate-y-1 hover:ring-foreground/20">
       <CardHeader>
         <div className="mb-3 flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15 transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
           <Icon className="size-5" aria-hidden />
@@ -111,23 +121,35 @@ export function ServicesSection() {
       />
 
       <div className="mt-14 flex flex-col gap-12">
-        {tracks.map((track) => (
-          <div key={track.id}>
-            <div className="mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="font-heading text-xs font-semibold tracking-widest text-primary uppercase">
-                {track.label}
-              </span>
-              <h3 className="font-heading text-xl font-semibold tracking-tight sm:text-2xl">
-                {track.title}
-              </h3>
+        {tracks.map((track) => {
+          const BadgeIcon = track.badgeIcon
+          return (
+            <div key={track.id}>
+              <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <span className="font-heading text-xs font-semibold tracking-widest text-primary uppercase">
+                  {track.label}
+                </span>
+                <h3 className="font-heading text-xl font-semibold tracking-tight sm:text-2xl">
+                  {track.title}
+                </h3>
+                <Badge
+                  variant="outline"
+                  className="gap-1.5 rounded-full px-2.5 py-1 font-medium sm:ml-auto"
+                >
+                  <BadgeIcon className="size-3.5" aria-hidden />
+                  {track.badge}
+                </Badge>
+              </div>
+              <StaggerContainer className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {track.services.map((service) => (
+                  <StaggerItem key={service.title} className="h-full">
+                    <ServiceCard {...service} />
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
             </div>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {track.services.map((service) => (
-                <ServiceCard key={service.title} {...service} />
-              ))}
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </Section>
   )

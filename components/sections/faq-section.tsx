@@ -1,3 +1,4 @@
+import { FadeIn } from "@/components/motion/reveal"
 import {
   Accordion,
   AccordionContent,
@@ -9,6 +10,11 @@ import { Section, SectionHeading } from "./section"
 type Faq = { question: string; answer: string }
 
 const faqs: Faq[] = [
+  {
+    question: "Do you work with clients outside Delhi or internationally?",
+    answer:
+      "Yes. We build custom software, CRMs, websites, Shopify stores, and SEO campaigns remotely for clients across India and worldwide—with milestone previews, flexible timezone calls, and transparent pricing. We also ship certified refurbished laptops, accessories, and bulk office orders across India.",
+  },
   {
     question: "Can you build custom software for my office or shop?",
     answer:
@@ -41,19 +47,22 @@ export function FaqSection() {
       />
 
       {/*
-        <Accordion> is a client island (Base UI). The section itself stays a Server
-        Component — only static content is passed in, so `/` stays prerendered.
+        <Accordion> is a client island (Base UI); FadeIn is a client reveal wrapper.
+        This section stays a Server Component — only static content is passed in, so
+        `/` stays prerendered.
       */}
-      <Accordion defaultValue={["faq-0"]} className="mx-auto mt-10 max-w-3xl">
-        {faqs.map(({ question, answer }, index) => (
-          <AccordionItem key={question} value={`faq-${index}`}>
-            <AccordionTrigger className="py-4 text-base">{question}</AccordionTrigger>
-            <AccordionContent>
-              <p className="text-sm leading-relaxed text-muted-foreground">{answer}</p>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+      <FadeIn className="mx-auto mt-10 max-w-3xl">
+        <Accordion defaultValue={["faq-0"]}>
+          {faqs.map(({ question, answer }, index) => (
+            <AccordionItem key={question} value={`faq-${index}`}>
+              <AccordionTrigger className="py-4 text-base">{question}</AccordionTrigger>
+              <AccordionContent>
+                <p className="text-sm leading-relaxed text-muted-foreground">{answer}</p>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </FadeIn>
     </Section>
   )
 }

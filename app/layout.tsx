@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { MotionProvider } from "@/components/motion/reveal";
 import { SanityLive } from "@/sanity/live";
 import "./globals.css";
 
@@ -18,11 +19,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://rizeonenterprises.com"),
   title: {
     default:
-      "Rizeon Enterprises | Custom Software, Website Development & Laptop Services in Delhi",
+      "Rizeon Enterprises | Custom Software, Web Development & IT Solutions — India & Global",
     template: "%s | Rizeon Enterprises",
   },
   description:
-    "Rizeon Enterprises – Your Vision, Our Code. Complete IT solutions including custom desktop & web software, responsive websites, certified laptop repairs, refurbished/new laptop sales, and genuine computer accessories in New Delhi.",
+    "Rizeon Enterprises – Your Vision, Our Code. Custom desktop & web software, CRMs, responsive websites, Shopify stores, and SEO for clients across India and worldwide—plus certified laptop repairs, refurbished laptops, and genuine IT accessories shipped across India from New Delhi.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -32,7 +33,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {children}
+        {/* MotionConfig provider (renders no DOM node, so the flex layout is unchanged). */}
+        <MotionProvider>{children}</MotionProvider>
         {/* Revalidates cached Sanity data when content is published. Renders nothing. */}
         <SanityLive includeDrafts={false} />
       </body>

@@ -1,5 +1,6 @@
 import { BadgeCheck, MessageCircle, ReceiptText, Wrench, type LucideIcon } from "lucide-react"
 
+import { StaggerContainer, StaggerItem } from "@/components/motion/reveal"
 import { Section, SectionHeading } from "./section"
 
 type Step = {
@@ -44,13 +45,13 @@ export function ProcessSection() {
         description="A transparent, four-step process that keeps every project on track and every stakeholder in the loop."
       />
 
-      <ol className="relative mx-auto mt-14 max-w-3xl">
+      <StaggerContainer className="relative mx-auto mt-14 max-w-3xl">
         {/* Connecting rail, aligned to the center of each number node. */}
         <div aria-hidden className="absolute top-2 bottom-2 left-5 w-px bg-border md:left-6" />
 
         {steps.map(({ icon: Icon, title, description }, index) => (
-          <li key={title} className="relative flex gap-5 pb-10 last:pb-0 md:gap-7">
-            <div className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-background font-heading text-sm font-semibold md:size-12 md:text-base">
+          <StaggerItem key={title} className="group relative flex gap-5 pb-10 last:pb-0 md:gap-7">
+            <div className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-background font-heading text-sm font-semibold transition-colors duration-200 group-hover:border-primary/40 group-hover:text-primary md:size-12 md:text-base">
               {String(index + 1).padStart(2, "0")}
             </div>
 
@@ -64,9 +65,9 @@ export function ProcessSection() {
               <h3 className="mt-1.5 font-heading text-xl font-medium tracking-tight">{title}</h3>
               <p className="mt-2 max-w-xl text-pretty text-muted-foreground">{description}</p>
             </div>
-          </li>
+          </StaggerItem>
         ))}
-      </ol>
+      </StaggerContainer>
     </Section>
   )
 }

@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { ArrowRight, Clock, Layers, MessageCircle, Settings2, ShieldCheck, type LucideIcon } from "lucide-react"
+import { ArrowRight, Clock, Globe, MessageCircle, Settings2, ShieldCheck, type LucideIcon } from "lucide-react"
 
+import { StaggerContainer, StaggerItem } from "@/components/motion/reveal"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { whatsappUrl } from "@/lib/site"
@@ -10,9 +11,9 @@ type TrustItem = { icon: LucideIcon; label: string; description: string }
 
 const trustStrip: TrustItem[] = [
   { icon: Settings2, label: "100% Custom", description: "Built around your exact workflow" },
-  { icon: Clock, label: "Same-Day", description: "Diagnostics for laptop & desktop repairs" },
-  { icon: ShieldCheck, label: "Genuine Parts", description: "Warranty-backed hardware & accessories" },
-  { icon: Layers, label: "End-to-End", description: "Software, web, and hardware under one roof" },
+  { icon: Globe, label: "India & Global", description: "Remote software & web delivery worldwide" },
+  { icon: Clock, label: "Same-Day", description: "Hardware diagnostics at our New Delhi desk" },
+  { icon: ShieldCheck, label: "Genuine Parts", description: "Warranty-backed hardware & pan-India supply" },
 ]
 
 export function HeroSection() {
@@ -34,27 +35,28 @@ export function HeroSection() {
       <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-6 pt-24 pb-20 text-center md:pt-32 md:pb-28">
         <Badge
           variant="secondary"
-          className="gap-1.5 rounded-full px-3 py-1 text-xs font-medium tracking-wide"
+          className="hero-fade gap-1.5 rounded-full px-3 py-1 text-xs font-medium tracking-wide"
         >
-          <Settings2 className="size-3.5" aria-hidden />
-          Complete Software &amp; Hardware Solutions
+          <Globe className="size-3.5" aria-hidden />
+          Serving Clients Across India &amp; Worldwide
         </Badge>
 
-        <h1 className="mt-6 max-w-4xl font-heading text-4xl font-semibold leading-[1.08] tracking-tight text-balance sm:text-5xl md:text-6xl">
+        {/* Transform-only entrance keeps the LCP text painted immediately. */}
+        <h1 className="hero-rise mt-6 max-w-4xl font-heading text-4xl font-semibold leading-[1.08] tracking-tight text-balance sm:text-5xl md:text-6xl">
           Turning Your Business Vision Into{" "}
           <span className="text-primary">Reliable Code &amp; Hardware.</span>
         </h1>
 
-        <p className="mt-6 max-w-2xl text-lg text-pretty text-muted-foreground sm:text-xl">
-          From tailor-made desktop software, CRMs, and high-converting websites to expert laptop
-          repairs and genuine computer accessories—Rizeon Enterprises is your one-stop technology
-          partner.
+        <p className="hero-fade hero-delay-1 mt-6 max-w-2xl text-lg text-pretty text-muted-foreground sm:text-xl">
+          From custom software, CRMs, Shopify stores, and high-converting websites delivered
+          remotely worldwide to expert laptop repairs and genuine IT hardware shipped across
+          India—Rizeon Enterprises is your one-stop technology partner.
         </p>
 
-        <div className="mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+        <div className="hero-fade hero-delay-2 mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
           <Link
             href="#services"
-            className={cn(buttonVariants(), "group/button h-12 gap-2 rounded-xl px-6 text-base")}
+            className={cn(buttonVariants(), "cta-ambient group/button h-12 gap-2 rounded-xl px-6 text-base")}
           >
             Explore Services
             <ArrowRight className="size-4 transition-transform group-hover/button:translate-x-0.5" aria-hidden />
@@ -70,18 +72,18 @@ export function HeroSection() {
           </a>
         </div>
 
-        {/* Quick Trust Strip */}
-        <dl className="mt-14 grid w-full max-w-3xl grid-cols-2 gap-x-6 gap-y-8 border-t border-border pt-10 md:grid-cols-4 md:gap-x-4">
+        {/* Quick Trust Strip (staggered reveal) */}
+        <StaggerContainer className="mt-14 grid w-full max-w-3xl grid-cols-2 gap-x-6 gap-y-8 border-t border-border pt-10 md:grid-cols-4 md:gap-x-4">
           {trustStrip.map(({ icon: Icon, label, description }) => (
-            <div key={label} className="flex flex-col items-center gap-2 text-center">
+            <StaggerItem key={label} className="flex flex-col items-center gap-2 text-center">
               <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
                 <Icon className="size-5" aria-hidden />
               </span>
-              <dt className="font-heading text-sm font-semibold tracking-tight">{label}</dt>
-              <dd className="text-xs leading-relaxed text-muted-foreground">{description}</dd>
-            </div>
+              <span className="font-heading text-sm font-semibold tracking-tight">{label}</span>
+              <span className="text-xs leading-relaxed text-muted-foreground">{description}</span>
+            </StaggerItem>
           ))}
-        </dl>
+        </StaggerContainer>
       </div>
     </section>
   )

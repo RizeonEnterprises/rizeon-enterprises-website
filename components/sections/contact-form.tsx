@@ -36,17 +36,24 @@ function Field({
   label,
   htmlFor,
   error,
+  optional = false,
   children,
 }: {
   label: string
   htmlFor: string
   error?: string | false
+  optional?: boolean
   children: React.ReactNode
 }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={htmlFor} className="text-sm font-medium">
-        {label} <span className="text-destructive">*</span>
+        {label}{" "}
+        {optional ? (
+          <span className="font-normal text-muted-foreground">(optional)</span>
+        ) : (
+          <span className="text-destructive">*</span>
+        )}
       </label>
       {children}
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
@@ -62,6 +69,7 @@ function Field({
 export function ContactForm() {
   const [name, setName] = React.useState("")
   const [phone, setPhone] = React.useState("")
+  const [cityCountry, setCityCountry] = React.useState("")
   const [service, setService] = React.useState<string | null>(null)
   const [details, setDetails] = React.useState("")
   const [errors, setErrors] = React.useState<Errors>({})
@@ -78,16 +86,16 @@ export function ContactForm() {
     setErrors(nextErrors)
     if (Object.values(nextErrors).some(Boolean)) return
 
-    const message = [
-      `New enquiry from ${name.trim()}`,
-      `Phone/WhatsApp: ${phone.trim()}`,
+    const lines = [`New enquiry from ${name.trim()}`, `Phone/WhatsApp: ${phone.trim()}`]
+    if (cityCountry.trim()) lines.push(`City/Country: ${cityCountry.trim()}`)
+    lines.push(
       `Service required: ${service}`,
       "",
       "Project / issue details:",
       details.trim(),
-    ].join("\n")
+    )
 
-    window.open(whatsappUrl(message), "_blank", "noopener,noreferrer")
+    window.open(whatsappUrl(lines.join("\n")), "_blank", "noopener,noreferrer")
   }
 
   return (
@@ -119,6 +127,17 @@ export function ContactForm() {
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
           aria-invalid={errors.phone || undefined}
+        />
+      </Field>
+
+      <Field label="City / Country" htmlFor="cityCountry" optional>
+        <Input
+          id="cityCountry"
+          name="cityCountry"
+          autoComplete="address-level2"
+          placeholder="New Delhi, India / London, UK"
+          value={cityCountry}
+          onChange={(event) => setCityCountry(event.target.value)}
         />
       </Field>
 
@@ -162,7 +181,7 @@ export function ContactForm() {
         />
       </Field>
 
-      <Button type="submit" className="mt-1 h-11 gap-2 rounded-xl text-base">
+      <Button type="submit" className="cta-ambient mt-1 h-11 gap-2 rounded-xl text-base">
         <MessageCircle className="size-4" aria-hidden />
         Send Enquiry on WhatsApp
       </Button>
