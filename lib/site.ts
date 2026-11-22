@@ -22,11 +22,15 @@ export function whatsappUrl(text?: string): string {
 
 export type NavItem = { label: string; href: string }
 
+// Hrefs are absolute (`/#section`, not `#section`) so the links work from any
+// route — e.g. clicking "About" on /portfolio returns to the homepage section.
 export const navItems: NavItem[] = [
-  { label: "Home", href: "#top" },
-  { label: "About", href: "#about" },
-  { label: "Services", href: "#services" },
-  { label: "Products", href: "#products" },
-  { label: "Why Us", href: "#why-us" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "/#top" },
+  { label: "About", href: "/#about" },
+  { label: "Services", href: "/#services" },
+  { label: "Products", href: "/#products" },
+  { label: "Portfolio", href: "/portfolio" },
+  { label: "Blog", href: "/blog" },
+  { label: "Why Us", href: "/#why-us" },
+  { label: "Contact", href: "/#contact" },
 ]
