@@ -1,8 +1,21 @@
 import type { MetadataRoute } from "next";
+import { cacheLife } from "next/cache";
 
-import { getSitemapEntries } from "@/sanity/data";
+import { client } from "@/sanity/client";
+import { SITEMAP_QUERY } from "@/sanity/queries";
 
 const SITE_URL = "https://rizeonenterprises.com";
+
+/**
+ * Fetch routable slugs with a short ("hours") cache instead of the long-lived
+ * Sanity Live cache, so newly published projects/posts appear in the sitemap on
+ * the Hostinger Node server within the hour (rather than needing a rebuild).
+ */
+async function getSitemapEntries() {
+  "use cache";
+  cacheLife("hours");
+  return client.fetch(SITEMAP_QUERY);
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries = await getSitemapEntries();

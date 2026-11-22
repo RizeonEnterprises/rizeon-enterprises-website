@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowRight, Clock, Globe, MessageCircle, Settings2, ShieldCheck, type LucideIcon } from "lucide-react"
 
+import { HeroParticleField } from "@/components/motion/hero-particle-field"
 import { StaggerContainer, StaggerItem } from "@/components/motion/reveal"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
@@ -25,14 +26,18 @@ export function HeroSection() {
       */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,color-mix(in_oklch,var(--foreground)_6%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklch,var(--foreground)_6%,transparent)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_70%_55%_at_50%_0%,#000_55%,transparent_100%)]"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,color-mix(in_oklch,var(--foreground)_4%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklch,var(--foreground)_4%,transparent)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_70%_55%_at_50%_0%,#000_45%,transparent_100%)]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(60%_60%_at_50%_0%,color-mix(in_oklch,var(--primary)_22%,transparent),transparent_70%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(60%_60%_at_50%_0%,color-mix(in_oklch,var(--primary)_13%,transparent),transparent_70%)]"
       />
 
-      <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-6 pt-24 pb-20 text-center md:pt-32 md:pb-28">
+      {/* Cursor-reactive particle layer (canvas). Sits above the grid/glow (z-0)
+          and below the hero content (z-10); pointer-events-none keeps CTAs clickable. */}
+      <HeroParticleField />
+
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-6 pt-24 pb-20 text-center md:pt-32 md:pb-28">
         <Badge
           variant="secondary"
           className="hero-fade gap-1.5 rounded-full px-3 py-1 text-xs font-medium tracking-wide"
