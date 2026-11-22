@@ -1,4 +1,4 @@
-import { Code2, DraftingCompass, Rocket, Search, type LucideIcon } from "lucide-react"
+import { BadgeCheck, MessageCircle, ReceiptText, Wrench, type LucideIcon } from "lucide-react"
 
 import { Section, SectionHeading } from "./section"
 
@@ -10,46 +10,43 @@ type Step = {
 
 const steps: Step[] = [
   {
-    icon: Search,
-    title: "Discovery",
+    icon: MessageCircle,
+    title: "Share Your Requirement",
     description:
-      "We dig into your goals, users, and market to define a clear scope and a roadmap worth building.",
+      "Call, WhatsApp, or fill out our enquiry form with what you need—software, a website, repair, or hardware.",
   },
   {
-    icon: DraftingCompass,
-    title: "Design & Strategy",
+    icon: ReceiptText,
+    title: "Clear Plan & Quote",
     description:
-      "Wireframes, UI design, and technical architecture that balance beautiful with buildable.",
+      "We evaluate your needs and share a straightforward timeline and cost estimate.",
   },
   {
-    icon: Code2,
-    title: "Development & Execution",
+    icon: Wrench,
+    title: "Build, Fix, or Source",
     description:
-      "Agile sprints with clean, tested code and regular demos, so you see real progress every week.",
+      "We develop your software/website with regular previews, or repair/prepare your hardware with quality checks.",
   },
   {
-    icon: Rocket,
-    title: "Launch & Support",
+    icon: BadgeCheck,
+    title: "Delivery & Ongoing Support",
     description:
-      "A smooth go-live, performance monitoring, and ongoing support to keep you scaling after launch.",
+      "Handover with full testing, guidance, and reliable post-delivery support.",
   },
 ]
 
 export function ProcessSection() {
   return (
-    <Section id="process">
+    <Section id="process" className="scroll-mt-20">
       <SectionHeading
-        eyebrow="How we work"
+        eyebrow="How We Work"
         title="A proven path from idea to launch"
         description="A transparent, four-step process that keeps every project on track and every stakeholder in the loop."
       />
 
       <ol className="relative mx-auto mt-14 max-w-3xl">
         {/* Connecting rail, aligned to the center of each number node. */}
-        <div
-          aria-hidden
-          className="absolute top-2 bottom-2 left-5 w-px bg-border md:left-6"
-        />
+        <div aria-hidden className="absolute top-2 bottom-2 left-5 w-px bg-border md:left-6" />
 
         {steps.map(({ icon: Icon, title, description }, index) => (
           <li key={title} className="relative flex gap-5 pb-10 last:pb-0 md:gap-7">

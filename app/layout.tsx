@@ -15,19 +15,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://rizeonenterprises.com"),
   title: {
-    default: "Rizeon Enterprises — Digital Solutions that Scale Your Business",
-    template: "%s — Rizeon Enterprises",
+    default:
+      "Rizeon Enterprises | Custom Software, Website Development & Laptop Services in Delhi",
+    template: "%s | Rizeon Enterprises",
   },
   description:
-    "Rizeon Enterprises designs, builds, and scales custom web platforms, e-commerce, and business software for ambitious companies.",
+    "Rizeon Enterprises – Your Vision, Our Code. Complete IT solutions including custom desktop & web software, responsive websites, certified laptop repairs, refurbished/new laptop sales, and genuine computer accessories in New Delhi.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}
