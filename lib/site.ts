@@ -25,7 +25,7 @@ export type NavItem = { label: string; href: string }
 // Hrefs are absolute (`/#section`, not `#section`) so the links work from any
 // route — e.g. clicking "About" on /portfolio returns to the homepage section.
 export const navItems: NavItem[] = [
-  { label: "Home", href: "/#top" },
+  { label: "Home", href: "/" },
   { label: "About", href: "/#about" },
   { label: "Services", href: "/#services" },
   { label: "Products", href: "/#products" },

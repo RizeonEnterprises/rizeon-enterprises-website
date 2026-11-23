@@ -19,7 +19,7 @@ const trustStrip: TrustItem[] = [
 
 export function HeroSection() {
   return (
-    <section id="top" className="relative isolate scroll-mt-20 overflow-hidden">
+    <section id="top" className="relative isolate scroll-mt-24 overflow-hidden">
       {/*
         Decorative background. Both layers key off --primary / --foreground, so when
         the brand colors are injected the grid and glow recolor automatically.

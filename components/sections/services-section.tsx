@@ -113,7 +113,7 @@ function ServiceCard({ icon: Icon, title, tagline, description }: Service) {
 
 export function ServicesSection() {
   return (
-    <Section id="services" className="scroll-mt-20 bg-muted/30">
+    <Section id="services" className="scroll-mt-24 bg-muted/30">
       <SectionHeading
         eyebrow="What We Do"
         title="Full-Stack IT Services, Two Clear Tracks"

@@ -7,7 +7,7 @@ import { ContactForm } from "./contact-form"
 
 export function ContactSection() {
   return (
-    <Section id="contact" className="scroll-mt-20 bg-muted/30">
+    <Section id="contact" className="scroll-mt-24 bg-muted/30">
       <FadeIn className="mx-auto mb-12 flex max-w-2xl flex-col items-center gap-4 text-center">
         <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
           Let&rsquo;s Build or Fix Something Great

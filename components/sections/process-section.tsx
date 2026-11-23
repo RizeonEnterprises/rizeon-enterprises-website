@@ -38,7 +38,7 @@ const steps: Step[] = [
 
 export function ProcessSection() {
   return (
-    <Section id="process" className="scroll-mt-20">
+    <Section id="process" className="scroll-mt-24">
       <SectionHeading
         eyebrow="How We Work"
         title="A proven path from idea to launch"

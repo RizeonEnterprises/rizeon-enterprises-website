@@ -10,7 +10,7 @@ import { Section, SectionHeading } from "./section"
 
 export function FaqSection() {
   return (
-    <Section id="faq" className="scroll-mt-20 bg-muted/30">
+    <Section id="faq" className="scroll-mt-24 bg-muted/30">
       <SectionHeading
         eyebrow="FAQ"
         title="Frequently asked questions"

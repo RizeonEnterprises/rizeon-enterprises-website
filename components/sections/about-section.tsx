@@ -20,7 +20,7 @@ const callouts = [
 
 export function AboutSection() {
   return (
-    <Section id="about" className="scroll-mt-20">
+    <Section id="about" className="scroll-mt-24">
       <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
         <FadeIn className="flex flex-col items-start gap-4">
           <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium tracking-wide">

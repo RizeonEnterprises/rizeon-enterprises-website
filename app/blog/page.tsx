@@ -18,7 +18,7 @@ export default async function BlogPage() {
   const posts = await getBlogPosts();
 
   return (
-    <section className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-16 md:py-24">
+    <section className="mx-auto w-full max-w-6xl scroll-mt-24 px-6 py-16 md:py-24">
       <header className="flex max-w-2xl flex-col gap-4">
         <Badge
           variant="secondary"

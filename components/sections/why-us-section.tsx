@@ -44,7 +44,7 @@ const valueProps: ValueProp[] = [
 
 export function WhyUsSection() {
   return (
-    <Section id="why-us" className="scroll-mt-20">
+    <Section id="why-us" className="scroll-mt-24">
       <SectionHeading
         eyebrow="Why Us"
         title="Why Choose Rizeon Enterprises"

@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Mail, MapPin, Phone } from "lucide-react"
 
 import { navItems, site } from "@/lib/site"
+import { HomeLink } from "./home-link"
 
 export function Footer() {
   return (
@@ -11,10 +12,10 @@ export function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1.4fr]">
           {/* Brand + bio */}
           <div className="flex flex-col gap-4">
-            <Link href="#top" className="flex items-center gap-2.5" aria-label={`${site.name} — home`}>
+            <HomeLink className="flex items-center gap-2.5" ariaLabel={`${site.name} — home`}>
               <Image src="/logo.png" alt="" width={53} height={36} />
               <span className="font-heading text-base font-semibold tracking-tight">{site.name}</span>
-            </Link>
+            </HomeLink>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
               {site.name} — {site.tagline}. Custom software, modern websites, and digital growth for
               clients across India and worldwide, plus laptop repairs and genuine IT accessories

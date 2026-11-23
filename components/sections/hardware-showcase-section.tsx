@@ -58,7 +58,7 @@ function StockBadge({ stock }: { stock: StockLevel }) {
 
 export function HardwareShowcaseSection() {
   return (
-    <Section id="products" className="scroll-mt-20 bg-muted/30">
+    <Section id="products" className="scroll-mt-24 bg-muted/30">
       <SectionHeading
         eyebrow="Products"
         title="Featured Hardware & Accessories Showcase"

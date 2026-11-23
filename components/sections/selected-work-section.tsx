@@ -19,7 +19,7 @@ export async function SelectedWorkSection() {
   const featured = projects.slice(0, 3);
 
   return (
-    <Section id="work" className="scroll-mt-20 bg-muted/30">
+    <Section id="work" className="scroll-mt-24 bg-muted/30">
       <div className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-end">
         <SectionHeading
           align="start"

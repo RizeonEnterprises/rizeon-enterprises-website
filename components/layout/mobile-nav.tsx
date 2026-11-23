@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet"
 import { navItems, site } from "@/lib/site"
 import { cn } from "cn"
+import { HomeLink } from "./home-link"
 
 /**
  * Mobile navigation drawer. Client island — the Sheet (Base UI Dialog) open
@@ -41,16 +42,24 @@ export function MobileNav() {
         </SheetHeader>
 
         <nav className="flex flex-col gap-0.5 px-4" aria-label="Mobile">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const className =
+              "rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            return item.label === "Home" ? (
+              <HomeLink key={item.href} className={className} onNavigate={() => setOpen(false)}>
+                {item.label}
+              </HomeLink>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className={className}
+              >
+                {item.label}
+              </Link>
+            )
+          })}
         </nav>
 
         <div className="mt-auto p-4">
