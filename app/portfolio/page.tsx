@@ -5,7 +5,7 @@ import { Briefcase } from "lucide-react";
 import { ProjectCard } from "@/components/sanity/project-card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { getPortfolioProjects } from "@/sanity/data";
+import { getPortfolioList } from "@/lib/portfolio";
 import { cn } from "cn";
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PortfolioPage() {
-  const projects = await getPortfolioProjects();
+  const projects = await getPortfolioList();
 
   return (
     <section className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-16 md:py-24">
@@ -54,7 +54,7 @@ export default async function PortfolioPage() {
       ) : (
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <ProjectCard key={project._id} project={project} />
+            <ProjectCard key={project.slug} project={project} />
           ))}
         </div>
       )}

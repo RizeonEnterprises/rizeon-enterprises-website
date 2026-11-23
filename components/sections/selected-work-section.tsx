@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 import { ProjectCard } from "@/components/sanity/project-card";
 import { buttonVariants } from "@/components/ui/button";
-import { getPortfolioProjects } from "@/sanity/data";
+import { getPortfolioList } from "@/lib/portfolio";
 import { cn } from "cn";
 import { Section, SectionHeading } from "./section";
 
@@ -13,7 +13,7 @@ import { Section, SectionHeading } from "./section";
  * day one and fills in automatically once work is published in the Studio.
  */
 export async function SelectedWorkSection() {
-  const projects = await getPortfolioProjects();
+  const projects = await getPortfolioList();
   if (projects.length === 0) return null;
 
   const featured = projects.slice(0, 3);
@@ -38,7 +38,7 @@ export async function SelectedWorkSection() {
 
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {featured.map((project) => (
-          <ProjectCard key={project._id} project={project} />
+          <ProjectCard key={project.slug} project={project} />
         ))}
       </div>
     </Section>

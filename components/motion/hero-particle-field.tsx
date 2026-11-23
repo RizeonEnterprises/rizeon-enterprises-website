@@ -3,18 +3,20 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Cursor-reactive particle field for the hero (zero dependencies, canvas 2D).
+ * Antigravity-style radial dash-ring swarm for the hero (zero deps, canvas 2D).
  *
- * The canvas is `pointer-events-none` + `aria-hidden`, so links/buttons stay
- * fully clickable and it's invisible to assistive tech. Pointer tracking listens
- * on `window` and is scoped to the canvas rect, so the parent <HeroSection />
- * can stay a Server Component.
+ * ~320 micro-dashes form a toroidal band with a hollow center. Each dash points
+ * radially outward, breathes via layered sine waves, and is colored by its angle
+ * (a chromatic sweep from brand blues through indigo/violet into coral/amber).
+ * On desktop the ring center springs elastically toward the cursor (and glides
+ * back to the hero center when the cursor leaves); on touch/mobile it stays a
+ * lighter, centered ambient ring.
  *
- * Guardrails: high-DPI via ResizeObserver + capped DPR; the rAF loop pauses when
- * the hero scrolls off-screen (IntersectionObserver) or the tab is hidden; fewer
- * particles and no pointer tracking on touch devices; and a single static frame
- * (no loop) when the user prefers reduced motion. All listeners/observers/rAF are
- * torn down on unmount.
+ * The canvas is `pointer-events-none` + `aria-hidden`, so CTAs stay clickable and
+ * it's invisible to assistive tech, and pointer tracking listens on `window`
+ * (scoped to the canvas rect) so <HeroSection /> can stay a Server Component.
+ * Guardrails: high-DPI capped at 2, rAF paused off-screen / on hidden tabs,
+ * fewer particles on mobile, and a single static frame for reduced motion.
  */
 export function HeroParticleField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -24,168 +26,161 @@ export function HeroParticleField() {
     if (!canvasEl) return;
     const maybeCtx = canvasEl.getContext("2d");
     if (!maybeCtx) return;
-    // Non-null typed aliases so the nested render/resize closures keep the narrowing.
     const canvas: HTMLCanvasElement = canvasEl;
     const ctx: CanvasRenderingContext2D = maybeCtx;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const finePointer = window.matchMedia("(pointer: fine)").matches;
 
-    // Ambient slate-blue; brightens toward brand blue (#148cdc) near the cursor.
-    const AMBIENT: [number, number, number] = [148, 163, 184];
-    const BRIGHT: [number, number, number] = [20, 140, 220];
-    const INTERACT_R = coarse ? 120 : 165;
+    // ── Chromatic sweep: color by angle around the ring ──────────────────────
+    const STOPS: { p: number; c: [number, number, number] }[] = [
+      { p: 0.0, c: [15, 111, 191] }, // #0f6fbf brand blue
+      { p: 0.12, c: [20, 140, 220] }, // #148cdc
+      { p: 0.26, c: [37, 99, 235] }, // #2563eb
+      { p: 0.4, c: [79, 70, 229] }, // #4f46e5 indigo
+      { p: 0.52, c: [124, 58, 237] }, // #7c3aed violet
+      { p: 0.64, c: [236, 72, 153] }, // #ec4899 pink
+      { p: 0.76, c: [249, 115, 22] }, // #f97316 orange
+      { p: 0.88, c: [234, 179, 8] }, // #eab308 amber
+      { p: 1.0, c: [15, 111, 191] }, // wrap back to blue
+    ];
+    const LUT_N = 180;
+    const lut: [number, number, number][] = [];
+    for (let i = 0; i < LUT_N; i++) {
+      const t = i / LUT_N;
+      let s = 0;
+      while (s < STOPS.length - 2 && t > STOPS[s + 1].p) s++;
+      const a = STOPS[s];
+      const b = STOPS[s + 1];
+      const k = (t - a.p) / (b.p - a.p || 1);
+      lut.push([
+        a.c[0] + (b.c[0] - a.c[0]) * k,
+        a.c[1] + (b.c[1] - a.c[1]) * k,
+        a.c[2] + (b.c[2] - a.c[2]) * k,
+      ]);
+    }
+    const colorAt = (angle: number) => {
+      let t = angle / (Math.PI * 2);
+      t -= Math.floor(t);
+      return lut[Math.min(LUT_N - 1, Math.floor(t * LUT_N))];
+    };
 
-    type Particle = {
-      bx: number;
-      by: number;
-      dx: number;
-      dy: number;
-      vx: number;
-      vy: number;
-      size: number;
-      dash: boolean;
-      angle: number;
-      phase: number;
-      bright: number;
+    const rand = (lo: number, hi: number) => lo + Math.random() * (hi - lo);
+    const smoothstep = (e0: number, e1: number, x: number) => {
+      const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0 || 1)));
+      return t * t * (3 - 2 * t);
+    };
+
+    type P = {
+      a: number;
+      baseR: number;
+      w1: number;
+      w2: number;
+      amp1: number;
+      amp2: number;
+      ph: number;
+      len: number;
+      width: number;
     };
 
     let width = 0;
     let height = 0;
-    let particles: Particle[] = [];
+    let mobile = false;
+    let innerR = 150;
+    let outerR = 380;
+    let particles: P[] = [];
     let raf = 0;
     let looping = false;
     let onScreen = true;
 
-    const pointer = { x: -9999, y: -9999 };
-    const target = { x: -9999, y: -9999 };
-    let active = false;
-    let flowAngle = -Math.PI / 2;
+    const center = { x: 0, y: 0 };
+    const rest = { x: 0, y: 0 };
+    const target = { x: 0, y: 0 };
+    let velAngle = 0;
     let bounds = canvas.getBoundingClientRect();
 
-    const rand = (a: number, b: number) => a + Math.random() * (b - a);
-    const mix = (a: number, b: number, t: number) => a + (b - a) * t;
-
     function build() {
-      const area = width * height;
-      const divisor = coarse ? 20000 : 11000;
-      const cap = coarse ? 60 : 150;
-      const count = Math.max(20, Math.min(Math.round(area / divisor), cap));
+      mobile = width < 768;
+      rest.x = width * 0.5;
+      rest.y = height * 0.42;
+      const maxDim = Math.min(width, height) || 1;
+      innerR = mobile ? Math.max(68, maxDim * 0.18) : Math.max(150, Math.min(170, maxDim * 0.24));
+      outerR = mobile
+        ? innerR + Math.min(150, maxDim * 0.34)
+        : Math.max(340, Math.min(420, maxDim * 0.52));
+      outerR = Math.min(outerR, innerR + 90 + Math.min(width, height) * 0.5);
+
+      const count = mobile ? 150 : 320;
       particles = [];
       for (let i = 0; i < count; i++) {
-        const bx = Math.random() * width;
-        const by = Math.random() * height;
+        const a = (i / count) * Math.PI * 2 + rand(-0.12, 0.12);
         particles.push({
-          bx,
-          by,
-          dx: 0,
-          dy: 0,
-          vx: rand(-0.1, 0.1),
-          vy: rand(-0.16, -0.03), // gentle upward "antigravity" drift
-          size: rand(0.8, 2.1),
-          dash: Math.random() < 0.22,
-          angle: rand(0, Math.PI * 2),
-          phase: rand(0, Math.PI * 2),
-          bright: 0,
+          a,
+          baseR: innerR + (outerR - innerR) * Math.random(),
+          w1: rand(0.0008, 0.0016),
+          w2: rand(0.0016, 0.0028),
+          amp1: rand(5, 12),
+          amp2: rand(3, 7),
+          ph: rand(0, Math.PI * 2),
+          len: rand(3, 7),
+          width: rand(1.6, 2.2),
         });
       }
     }
 
-    // Fade particles out behind the headline/CTA block so they frame the type.
-    function density(x: number, y: number) {
-      const cx = width * 0.5;
-      const cy = height * 0.47;
-      const rx = width * 0.46;
-      const ry = height * 0.46;
-      const nx = (x - cx) / rx;
-      const ny = (y - cy) / ry;
+    // Dim particles over the central text column so the headline stays readable.
+    function readability(x: number, y: number) {
+      const nx = (x - width * 0.5) / (width * 0.34);
+      const ny = (y - height * 0.5) / (height * 0.42);
       const d = Math.sqrt(nx * nx + ny * ny);
-      // 0 inside the protected ellipse, ramping to 1 outside it.
-      return Math.min(1, Math.max(0, (d - 0.38) / 0.5));
-    }
-
-    function color([r, g, b]: [number, number, number], alpha: number) {
-      return `rgba(${r | 0},${g | 0},${b | 0},${alpha})`;
+      return 0.32 + 0.68 * smoothstep(0.45, 0.95, d);
     }
 
     function paint(time: number) {
-      ctx.clearRect(0, 0, width, height);
+      // Elastic spring of the ring center toward the target (cursor or rest).
+      center.x += (target.x - center.x) * 0.08;
+      center.y += (target.y - center.y) * 0.08;
+      const dxc = target.x - center.x;
+      const dyc = target.y - center.y;
+      const speed = Math.min(Math.hypot(dxc, dyc), 300);
+      if (speed > 2) velAngle = Math.atan2(dyc, dxc);
+      const globalBreath = Math.sin(time * 0.0006) * 8;
 
-      // Lerp the display pointer toward the raw target for smooth motion.
-      pointer.x += (target.x - pointer.x) * 0.14;
-      pointer.y += (target.y - pointer.y) * 0.14;
-      const fdx = target.x - pointer.x;
-      const fdy = target.y - pointer.y;
-      if (fdx * fdx + fdy * fdy > 0.4) flowAngle = Math.atan2(fdy, fdx);
+      ctx.clearRect(0, 0, width, height);
+      ctx.lineCap = "round";
 
       for (const p of particles) {
-        // Ambient drift with wrap-around.
-        p.bx += p.vx;
-        p.by += p.vy;
-        if (p.by < -6) p.by = height + 6;
-        if (p.bx < -6) p.bx = width + 6;
-        else if (p.bx > width + 6) p.bx = -6;
+        const aj = p.a + Math.sin(time * 0.001 + p.ph) * 0.04; // slight angular jitter
+        const breath =
+          Math.sin(time * p.w1 + p.ph) * p.amp1 +
+          Math.sin(time * p.w2 + p.ph * 1.7) * p.amp2 +
+          globalBreath;
+        const ripple = Math.sin(aj * 3 - time * 0.004) * Math.min(speed * 0.18, 26);
+        const r = p.baseR + breath + ripple;
 
-        let desX = 0;
-        let desY = 0;
-        let targetBright = 0;
-        let targetAngle = Math.atan2(p.vy, p.vx);
+        const px = center.x + Math.cos(aj) * r;
+        const py = center.y + Math.sin(aj) * r;
 
-        if (active) {
-          const ddx = p.bx - pointer.x;
-          const ddy = p.by - pointer.y;
-          const dist = Math.hypot(ddx, ddy);
-          if (dist < INTERACT_R) {
-            const t = 1 - dist / INTERACT_R;
-            const e = t * t * (3 - 2 * t); // smoothstep
-            const nx = ddx / (dist || 1);
-            const ny = ddy / (dist || 1);
-            // Magnetic breathing halo: push out + gentle wave.
-            const breathe = Math.sin(time * 0.003 + p.phase) * 2;
-            const push = e * (coarse ? 10 : 17) + e * breathe;
-            desX = nx * push;
-            desY = ny * push;
-            targetBright = e;
-            targetAngle = flowAngle; // orient along the cursor's flow
-          }
-        }
+        const inner = smoothstep(innerR - 20, innerR + 40, r);
+        const outer = 1 - smoothstep(outerR - 70, outerR + 10, r);
+        let alpha = inner * outer;
+        if (alpha <= 0.01) continue;
+        alpha *= readability(px, py) * (mobile ? 0.42 : 0.64);
+        if (alpha <= 0.01) continue;
 
-        // Spring the offset + brightness toward their targets (calm return).
-        p.dx += (desX - p.dx) * 0.12;
-        p.dy += (desY - p.dy) * 0.12;
-        p.bright += (targetBright - p.bright) * 0.12;
+        // Elongate dashes on the leading edge as the cursor moves fast.
+        const lead = Math.max(0, Math.cos(aj - velAngle));
+        const len = p.len * (1 + Math.min(speed * 0.012, 1.1) * (0.4 + 0.6 * lead));
+        const c = colorAt(aj);
 
-        let da = targetAngle - p.angle;
-        da = Math.atan2(Math.sin(da), Math.cos(da));
-        p.angle += da * (0.06 + 0.18 * p.bright);
-
-        const px = p.bx + p.dx;
-        const py = p.by + p.dy;
-        const alpha = density(px, py) * (0.22 + p.bright * 0.55);
-        if (alpha <= 0.015) continue;
-
-        const r = mix(AMBIENT[0], BRIGHT[0], p.bright);
-        const g = mix(AMBIENT[1], BRIGHT[1], p.bright);
-        const b = mix(AMBIENT[2], BRIGHT[2], p.bright);
-        const fill = color([r, g, b], alpha);
-
-        if (p.dash) {
-          const len = p.size * 3.2 * (1 + p.bright * 0.7);
-          const ca = Math.cos(p.angle) * (len / 2);
-          const sa = Math.sin(p.angle) * (len / 2);
-          ctx.strokeStyle = fill;
-          ctx.lineWidth = p.size * 0.9;
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.moveTo(px - ca, py - sa);
-          ctx.lineTo(px + ca, py + sa);
-          ctx.stroke();
-        } else {
-          ctx.fillStyle = fill;
-          ctx.beginPath();
-          ctx.arc(px, py, p.size * (1 + p.bright * 0.5), 0, Math.PI * 2);
-          ctx.fill();
-        }
+        const ca = Math.cos(aj) * (len / 2);
+        const sa = Math.sin(aj) * (len / 2);
+        ctx.strokeStyle = `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${alpha})`;
+        ctx.lineWidth = p.width;
+        ctx.beginPath();
+        ctx.moveTo(px - ca, py - sa);
+        ctx.lineTo(px + ca, py + sa);
+        ctx.stroke();
       }
     }
 
@@ -193,14 +188,11 @@ export function HeroParticleField() {
       paint(performance.now());
       if (looping) raf = requestAnimationFrame(loop);
     }
-
     function start() {
-      if (looping || reduceMotion) return;
-      if (!onScreen || document.hidden) return;
+      if (looping || reduceMotion || !onScreen || document.hidden) return;
       looping = true;
       raf = requestAnimationFrame(loop);
     }
-
     function stop() {
       looping = false;
       if (raf) cancelAnimationFrame(raf);
@@ -216,29 +208,24 @@ export function HeroParticleField() {
       canvas.height = Math.max(1, Math.round(height * dpr));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       build();
+      center.x = rest.x;
+      center.y = rest.y;
+      target.x = rest.x;
+      target.y = rest.y;
       if (reduceMotion) paint(0); // single static frame
     }
 
     function onMove(event: PointerEvent) {
-      target.x = event.clientX - bounds.left;
-      target.y = event.clientY - bounds.top;
-      const inside =
-        target.x >= -40 &&
-        target.x <= width + 40 &&
-        target.y >= -40 &&
-        target.y <= height + 40;
-      if (inside) {
-        if (!active) {
-          // Avoid a jump the first time the cursor enters.
-          pointer.x = target.x;
-          pointer.y = target.y;
-        }
-        active = true;
-      } else {
-        active = false;
-      }
+      const x = event.clientX - bounds.left;
+      const y = event.clientY - bounds.top;
+      const inside = x >= -80 && x <= width + 80 && y >= -80 && y <= height + 80;
+      target.x = inside ? x : rest.x;
+      target.y = inside ? y : rest.y;
     }
-
+    function onLeave() {
+      target.x = rest.x;
+      target.y = rest.y;
+    }
     function updateBounds() {
       bounds = canvas.getBoundingClientRect();
     }
@@ -260,11 +247,11 @@ export function HeroParticleField() {
 
     const onVisibility = () => (document.hidden ? stop() : start());
     document.addEventListener("visibilitychange", onVisibility);
-
-    if (!coarse && !reduceMotion) {
-      window.addEventListener("pointermove", onMove, { passive: true });
-    }
     window.addEventListener("scroll", updateBounds, { passive: true });
+    if (finePointer && !reduceMotion) {
+      window.addEventListener("pointermove", onMove, { passive: true });
+      document.addEventListener("mouseleave", onLeave);
+    }
 
     start();
 
@@ -273,8 +260,9 @@ export function HeroParticleField() {
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("pointermove", onMove);
       window.removeEventListener("scroll", updateBounds);
+      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("mouseleave", onLeave);
     };
   }, []);
 

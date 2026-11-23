@@ -1,26 +1,40 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 
 import { PortableTextBody } from "@/components/sanity/portable-text";
+import { PortfolioImageFrame } from "@/components/sanity/portfolio-image-frame";
+import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { getPortfolioProject } from "@/sanity/data";
+import { getBuiltInPortfolioSlugs, getPortfolioDetail } from "@/lib/portfolio";
 import { urlFor } from "@/sanity/image";
 import { cn } from "cn";
+
+// Always ≥1 result (the curated built-in projects), so Cache Components is happy.
+// These prerender statically; any extra Sanity-only slugs render on demand.
+export function generateStaticParams() {
+  return getBuiltInPortfolioSlugs().map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({
   params,
 }: PageProps<"/portfolio/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const project = await getPortfolioProject(slug);
+  const project = await getPortfolioDetail(slug);
   if (!project) return { title: "Project not found" };
 
-  const ogImage = project.mainImage?.asset
-    ? urlFor(project.mainImage).width(1200).height(630).fit("crop").url()
-    : undefined;
+  let ogImage = "/logo.png";
+  if (project.image.kind === "sanity") {
+    ogImage = urlFor(project.image.image as Parameters<typeof urlFor>[0])
+      .width(1200)
+      .height(630)
+      .fit("crop")
+      .url();
+  } else if (project.image.kind === "local") {
+    ogImage = project.image.src;
+  }
 
   return {
     title: project.title,
@@ -31,14 +45,12 @@ export async function generateMetadata({
       title: project.title,
       description: project.challenge,
       url: `/portfolio/${project.slug}`,
-      images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : undefined,
+      images: [{ url: ogImage }],
     },
   };
 }
 
 export default function PortfolioProjectPage(props: PageProps<"/portfolio/[slug]">) {
-  // Dynamic data lives behind <Suspense> so Cache Components renders a static
-  // shell and the route works on day one with zero published projects.
   return (
     <Suspense fallback={<ProjectSkeleton />}>
       <ProjectContent params={props.params} />
@@ -46,18 +58,10 @@ export default function PortfolioProjectPage(props: PageProps<"/portfolio/[slug]
   );
 }
 
-async function ProjectContent({
-  params,
-}: {
-  params: PageProps<"/portfolio/[slug]">["params"];
-}) {
+async function ProjectContent({ params }: { params: PageProps<"/portfolio/[slug]">["params"] }) {
   const { slug } = await params;
-  const project = await getPortfolioProject(slug);
+  const project = await getPortfolioDetail(slug);
   if (!project) notFound();
-
-  const imageUrl = project.mainImage?.asset
-    ? urlFor(project.mainImage).width(1600).height(900).fit("crop").url()
-    : null;
 
   const summary = [
     { label: "Challenge", value: project.challenge },
@@ -75,20 +79,44 @@ async function ProjectContent({
         Back to portfolio
       </Link>
 
-      <h1 className="mt-6 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+      <div className="mt-6 flex flex-wrap items-center gap-1.5">
+        {project.category ? (
+          <Badge variant="secondary" className="rounded-full text-xs">
+            {project.category}
+          </Badge>
+        ) : null}
+        {project.badge ? (
+          <Badge variant="outline" className="rounded-full text-xs">
+            {project.badge}
+          </Badge>
+        ) : null}
+      </div>
+
+      <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
         {project.title}
       </h1>
 
-      {imageUrl ? (
-        <Image
-          src={imageUrl}
-          alt={project.mainImage.alt ?? project.title}
-          width={1600}
-          height={900}
+      <div className="group mt-8 overflow-hidden rounded-xl ring-1 ring-foreground/10">
+        <PortfolioImageFrame
+          image={project.image}
+          title={project.title}
+          category={project.category}
+          liveUrl={project.liveUrl}
+          large
           priority
-          sizes="(max-width: 768px) 100vw, 768px"
-          className="mt-8 h-auto w-full rounded-xl ring-1 ring-foreground/10"
         />
+      </div>
+
+      {project.liveUrl ? (
+        <a
+          href={project.liveUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(buttonVariants({ variant: "outline" }), "mt-5 gap-2 rounded-xl")}
+        >
+          Visit live site
+          <ExternalLink className="size-4" aria-hidden />
+        </a>
       ) : null}
 
       <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -128,7 +156,7 @@ function ProjectSkeleton() {
     <div className="mx-auto w-full max-w-3xl px-6 py-14 md:py-20">
       <div className="h-5 w-32 animate-pulse rounded bg-muted" />
       <div className="mt-6 h-10 w-3/4 animate-pulse rounded bg-muted" />
-      <div className="mt-8 aspect-video w-full animate-pulse rounded-xl bg-muted" />
+      <div className="mt-8 aspect-[16/10] w-full animate-pulse rounded-xl bg-muted" />
       <div className="mt-10 grid gap-4 sm:grid-cols-3">
         {[0, 1, 2].map((i) => (
           <div key={i} className="h-28 animate-pulse rounded-xl bg-muted" />
