@@ -8,14 +8,9 @@ const nextConfig: NextConfig = {
     // Sanity image CDN (see sanity/image.ts).
     remotePatterns: [{ protocol: "https", hostname: "cdn.sanity.io" }],
   },
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
+  // Tailwind CSS is processed via PostCSS (postcss.config.mjs) so the same
+  // pipeline works for both `next dev` (Turbopack) and `next build --webpack`
+  // (required by Hostinger for Next.js 16.3.3+).
 };
 
 export default nextConfig;
